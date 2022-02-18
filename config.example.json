@@ -1,0 +1,17 @@
+{
+  "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+
+  "clientId": "xxxxxxxxxxxxxxxxxx",
+  "guildId": "xxxxxxxxxxxxxxxxxx",
+
+  "moderatorRoleId": "xxxxxxxxxxxxxxxxxx",
+
+  "wiki": {
+    "url": "xx.fandom.com"
+  },
+
+  "verification": {
+    "channelId": "xxxxxxxxxxxxxxxxxx",
+    "roleId": "xxxxxxxxxxxxxxxxxx"
+  }
+}
