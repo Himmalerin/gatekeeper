@@ -1,5 +1,6 @@
 import {Client, FetchedThreads, GuildMember, TextChannel} from "discord.js";
 import {verification} from "../../config.json";
+import {userMention} from "@discordjs/builders";
 
 export default async (client: Client, member: GuildMember): Promise<void> => {
     const verificationChannel = await client.channels.fetch(verification.channelId) as TextChannel;
@@ -19,12 +20,12 @@ export default async (client: Client, member: GuildMember): Promise<void> => {
         await threadMessage.delete();
 
         await thread.send({
-            content: `Welcome to the WoF Fanon Wiki verification process, <@${member.user.id}>! Click the link below to get started and then send your Fandom username in this thread.
+            content: `Welcome to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}>! Click the link below to get started and then send your Fandom username in this thread.
 https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`,
         });
     } else {
         await previousVerificationThread.send({
-            content: `Welcome back to the WoF Fanon Wiki verification process, <@${member.user.id}>! Click the link below to get started and then send your Fandom username in this thread.
+            content: `Welcome back to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the link below to get started and then send your Fandom username in this thread.
 https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`,
         });
     }

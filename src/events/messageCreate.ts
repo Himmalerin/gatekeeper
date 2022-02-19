@@ -4,6 +4,7 @@ import {verification} from "../../config.json";
 import {FandomApi} from "../interfaces/FandomApi";
 import fetchUserData from "../scripts/fetchUserData";
 import fetchDiscordName from "../scripts/fetchDiscordName";
+import {inlineCode} from "@discordjs/builders";
 
 export default (client: Client): void => {
     client.on("messageCreate", async (message: Message): Promise<void> => {
@@ -34,7 +35,7 @@ export default (client: Client): void => {
         }
 
         if (discordData.username !== author.user.tag) {
-            message.channel.send(`The tag (\`${discordData.username}\`) in the profile of the Fandom account \`${message.content}\` does not match your account's tag (\`${author.user.tag}\`). Please correct it using the link below, and try again.
+            message.channel.send(`The tag (${inlineCode(discordData.username)}) in the profile of the Fandom account ${inlineCode(message.content)} does not match your account's tag (${inlineCode(author.user.tag)}). Please correct it using the link below, and try again.
 https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`);
             return;
         }
@@ -42,9 +43,9 @@ https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURICompone
         const verifiedRole = await message.guild.roles.fetch(verification.roleId);
         await author.roles.add(verifiedRole);
 
-        message.channel.send(`Verification of your Discord account with Fandom account \`${message.content}\` was successful!`);
+        message.channel.send(`Verification of your Discord account with Fandom account ${inlineCode(message.content)} was successful!`);
 
         await channel.setLocked(true);
-        // await channel.setArchived(true);
+        await channel.setArchived(true);
     });
 };

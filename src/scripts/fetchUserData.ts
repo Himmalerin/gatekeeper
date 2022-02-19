@@ -1,6 +1,6 @@
 import * as undici from "undici";
 import {wiki} from "../../config.json";
-import {time} from "@discordjs/builders";
+import {inlineCode, time} from "@discordjs/builders";
 
 interface WikiApi {
     readonly query: {
@@ -34,7 +34,7 @@ export default async (username: string) => {
             return {
                 id: null,
                 username: null,
-                message: `The Fandom account \`${user.name}\` doesn't exist.  Please try again using a different username.`,
+                message: `The Fandom account ${inlineCode(user.name)} doesn't exist.  Please try again using a different username.`,
             };
         }
 
@@ -45,7 +45,7 @@ export default async (username: string) => {
                 return {
                     id: user.userid,
                     username: user.name,
-                    message: `The Fandom account \`${user.name}\` is permanently blocked.`,
+                    message: `The Fandom account ${inlineCode(user.name)} is permanently blocked.`,
                 };
             }
 
@@ -54,7 +54,7 @@ export default async (username: string) => {
             return {
                 id: user.userid,
                 username: user.name,
-                message: `The Fandom account \`${user.name}\` is currently blocked.  Please try again in ${time(blockExpiryDate, "R")}.`,
+                message: `The Fandom account ${inlineCode(user.name)} is currently blocked.  Please try again in ${time(blockExpiryDate, "R")}.`,
             };
         }
 

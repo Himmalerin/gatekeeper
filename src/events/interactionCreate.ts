@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import {Commands} from "../Commands";
 import {verification} from "../../config.json";
+import {channelMention, userMention} from "@discordjs/builders";
 
 export default (client: Client): void => {
     client.on("interactionCreate", async (interaction: Interaction): Promise<void> => {
@@ -63,17 +64,17 @@ const handleButton = async (client: Client, interaction: ButtonInteraction): Pro
         await threadMessage.delete();
 
         await thread.send({
-            content: `Welcome to the WoF Fanon Wiki verification process, <@${member.user.id}>! Click the link below to get started and then send your Fandom username in this thread.
+            content: `Welcome to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the link below to get started and then send your Fandom username in this thread.
 https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`,
         });
 
         await interaction.reply({
             ephemeral: true,
-            content: `Please head over to <#${thread.id}> to verify!`,
+            content: `Please head over to ${channelMention(thread.id)} to verify!`,
         });
     } else {
         await previousVerificationThread.send({
-            content: `Welcome back to the WoF Fanon Wiki verification process, <@${member.user.id}>! Click the link below to get started and then send your Fandom username in this thread.
+            content: `Welcome back to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the link below to get started and then send your Fandom username in this thread.
 https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`,
         });
 

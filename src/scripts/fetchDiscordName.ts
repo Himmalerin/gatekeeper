@@ -1,5 +1,6 @@
 import {GuildMember} from "discord.js";
 import * as undici from "undici";
+import {inlineCode} from "@discordjs/builders";
 
 interface ServiceApi {
     readonly name: string;
@@ -22,7 +23,7 @@ export default async (userId: number, author: GuildMember, fandomUsername: strin
             return {
                 id: userId,
                 username: null,
-                message: `There is no Discord tag associated with the Fandom account \`${fandomUsername}\`.  Please add \`${author.user.username}\` to your Fandom profile using the link below.
+                message: `There is no Discord tag associated with the Fandom account ${inlineCode(fandomUsername)}.  Please add ${inlineCode(author.user.username)} to your Fandom profile using the link below.
 https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`,
             };
         }
