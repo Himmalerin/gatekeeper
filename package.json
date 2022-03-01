@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "discord.js": "^13.6.0",
-    "undici": "^4.13.0"
+    "undici": "^4.14.0"
   },
   "devDependencies": {
     "@discordjs/builders": "^0.12.0",
