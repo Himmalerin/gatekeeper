@@ -6,9 +6,7 @@
 
   "moderatorRoleId": "xxxxxxxxxxxxxxxxxx",
 
-  "wiki": {
-    "url": "xx.fandom.com"
-  },
+  "wiki": "xx.fandom.com",
 
   "verification": {
     "channelId": "xxxxxxxxxxxxxxxxxx",
