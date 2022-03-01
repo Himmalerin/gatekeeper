@@ -80,7 +80,7 @@ https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURICompone
 
         await interaction.reply({
             ephemeral: true,
-            content: `Please head over to <#${previousVerificationThread.id}> to finish verifying!`,
+            content: `Please head over to ${channelMention(previousVerificationThread.id)} to finish verifying!`,
         });
     }
 };
