@@ -43,6 +43,8 @@ https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURICompone
         const verifiedRole = await message.guild.roles.fetch(verification.roleId);
         await author.roles.add(verifiedRole);
 
+        await author.setNickname(userData.username);
+
         message.channel.send(`Verification of your Discord account with Fandom account ${inlineCode(message.content)} was successful!`);
 
         await channel.setLocked(true);
