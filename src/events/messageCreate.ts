@@ -1,4 +1,4 @@
-import {Client, GuildMember, Message, ThreadChannel} from "discord.js";
+import {Client, GuildMember, Message, MessageActionRow, MessageButton, ThreadChannel} from "discord.js";
 
 import {verification} from "../../config.json";
 import {FandomApi} from "../interfaces/FandomApi";
@@ -24,19 +24,29 @@ export default (client: Client): void => {
 
         const userData: FandomApi = await fetchUserData(message.content);
         if (userData.message) {
-            message.channel.send(userData.message);
+            await message.channel.send(userData.message);
             return;
         }
 
         const discordData = await fetchDiscordName(userData.id, author, message.content);
         if (discordData.message) {
-            message.channel.send(discordData.message);
+            await message.channel.send(discordData.message);
             return;
         }
 
         if (discordData.username !== author.user.tag) {
-            message.channel.send(`The tag (${inlineCode(discordData.username)}) in the profile of the Fandom account ${inlineCode(message.content)} does not match your account's tag (${inlineCode(author.user.tag)}). Please correct it using the link below, and try again.
-https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`);
+            const button = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setLabel("Verify your account")
+                        .setStyle("LINK")
+                        .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`),
+                );
+
+            await message.channel.send({
+                content: `The tag (${inlineCode(discordData.username)}) in the profile of the Fandom account ${inlineCode(message.content)} does not match your account's tag (${inlineCode(author.user.tag)}). Please correct it using the button below, and try again.`,
+                components: [button],
+            });
             return;
         }
 
@@ -45,7 +55,7 @@ https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURICompone
 
         await author.setNickname(userData.username);
 
-        message.channel.send(`Verification of your Discord account with Fandom account ${inlineCode(message.content)} was successful!`);
+        await message.channel.send(`Verification of your Discord account with Fandom account ${inlineCode(message.content)} was successful!`);
 
         await channel.setLocked(true);
         await channel.setArchived(true);

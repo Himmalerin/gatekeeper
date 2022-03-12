@@ -19,17 +19,19 @@ export const VerificationGreeting: Command = {
 
         const verificationChannel = await client.channels.fetch(verification.channelId) as TextChannel;
 
-        const row = new MessageActionRow()
+        const button = new MessageActionRow()
             .addComponents(
                 new MessageButton()
                     .setCustomId("verification")
-                    .setLabel("Verify your account")
+                    .setLabel("Restart verification process")
                     .setStyle("PRIMARY"),
             );
 
         await verificationChannel.send({
-            content: "Welcome to the Wings of Fire Fanon Discord!  In order to verify and gain access to the rest of the server please follow the instructions in your dedicated verification thread.",
-            components: [row],
+            content: `Welcome to the Wings of Fire Fanon Discord!  In order to verify and gain access to the rest of the server please follow the instructions in your dedicated verification thread.
+
+If your verification thread closes you can press the button below to create a new one.`,
+            components: [button],
         });
 
         await interaction.followUp({

@@ -5,6 +5,8 @@ import {
     FetchedThreads,
     GuildMember,
     Interaction,
+    MessageActionRow,
+    MessageButton,
     TextChannel,
 } from "discord.js";
 import {Commands} from "../Commands";
@@ -63,9 +65,17 @@ const handleButton = async (client: Client, interaction: ButtonInteraction): Pro
         const threadMessage = await verificationChannel.messages.fetch(thread.id);
         await threadMessage.delete();
 
+        const button = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setLabel("Verify your account")
+                    .setStyle("LINK")
+                    .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`),
+            );
+
         await thread.send({
-            content: `Welcome to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the link below to get started and then send your Fandom username in this thread.
-https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`,
+            content: `Welcome to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the link below to get started and then send your Fandom username in this thread.`,
+            components: [button],
         });
 
         await interaction.reply({
@@ -73,9 +83,17 @@ https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURICompone
             content: `Please head over to ${channelMention(thread.id)} to verify!`,
         });
     } else {
+        const button = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setLabel("Verify your account")
+                    .setStyle("LINK")
+                    .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`),
+            );
+
         await previousVerificationThread.send({
-            content: `Welcome back to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the link below to get started and then send your Fandom username in this thread.
-https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`,
+            content: `Welcome back to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the link below to get started and then send your Fandom username in this thread.`,
+            components: [button],
         });
 
         await interaction.reply({
