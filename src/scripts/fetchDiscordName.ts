@@ -1,6 +1,6 @@
 import {GuildMember} from "discord.js";
-import * as undici from "undici";
 import {inlineCode} from "@discordjs/builders";
+import {fetch} from "undici";
 
 interface ServiceApi {
     readonly name: string;
@@ -9,15 +9,9 @@ interface ServiceApi {
 }
 
 export default async (userId: number, author: GuildMember, fandomUsername: string) => {
-    const client = new undici.Client(`https://services.fandom.com`);
-
     try {
-        const {body} = await client.request({
-            path: `/user-attribute/user/${userId}/attr/discordHandle`,
-            method: "GET",
-        });
-        body.setEncoding("utf8");
-        const data: ServiceApi = await body.json();
+        const response = await fetch(`/user-attribute/user/${userId}/attr/discordHandle`);
+        const data = await response.json() as ServiceApi;
 
         if (data.status === 404) {
             return {

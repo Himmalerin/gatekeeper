@@ -1,6 +1,6 @@
-import * as undici from "undici";
-import {wiki} from "../../config.json";
 import {inlineCode, time} from "@discordjs/builders";
+import {fetch} from "undici";
+import {wiki} from "../../config.json";
 
 interface WikiApi {
     readonly query: {
@@ -18,16 +18,11 @@ interface WikiApi {
 }
 
 export default async (username: string) => {
-    const client = new undici.Client(`https://${wiki}.fandom.com`);
 
     try {
         // The `&*` on the end of the url is required to avoid a MediaWiki security redirect for Internet Explorer
-        const {body} = await client.request({
-            path: `/api.php?format=json&formatversion=2&action=query&list=users&usprop=blockinfo&ususers=${encodeURIComponent(username)}&*`,
-            method: "GET",
-        });
-        body.setEncoding("utf8");
-        const data: WikiApi = await body.json();
+        const response = await fetch(`https://${wiki}.fandom.com/api.php?format=json&formatversion=2&action=query&list=users&usprop=blockinfo&ususers=${encodeURIComponent(username)}&*`);
+        const data = await response.json() as WikiApi;
 
         const user = data.query.users[0];
 
