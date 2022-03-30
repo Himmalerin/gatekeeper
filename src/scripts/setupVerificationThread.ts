@@ -1,6 +1,6 @@
 import {Client, FetchedThreads, GuildMember, TextChannel} from "discord.js";
-import {verification} from "../../config.json";
 import {userMention} from "@discordjs/builders";
+import {verification} from "../../config.json";
 
 export default async (client: Client, member: GuildMember): Promise<void> => {
     try {

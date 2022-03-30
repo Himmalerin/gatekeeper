@@ -9,9 +9,9 @@ import {
     MessageButton,
     TextChannel,
 } from "discord.js";
+import {channelMention, userMention} from "@discordjs/builders";
 import {Commands} from "../Commands";
 import {verification} from "../../config.json";
-import {channelMention, userMention} from "@discordjs/builders";
 
 export default (client: Client): void => {
     client.on("interactionCreate", async (interaction: Interaction): Promise<void> => {

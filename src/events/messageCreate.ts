@@ -1,10 +1,9 @@
 import {Client, GuildMember, Message, MessageActionRow, MessageButton, ThreadChannel} from "discord.js";
-
-import {verification, serverRulesChannelId, reactionRolesChannelId} from "../../config.json";
-import {FandomApi} from "../interfaces/FandomApi";
+import {channelMention, inlineCode} from "@discordjs/builders";
 import fetchUserData from "../scripts/fetchUserData";
 import fetchDiscordName from "../scripts/fetchDiscordName";
-import {channelMention, inlineCode} from "@discordjs/builders";
+import {FandomApi} from "../interfaces/FandomApi";
+import {reactionRolesChannelId, serverRulesChannelId, verification} from "../../config.json";
 
 export default (client: Client): void => {
     client.on("messageCreate", async (message: Message): Promise<void> => {

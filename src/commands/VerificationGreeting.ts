@@ -1,6 +1,5 @@
 import {BaseCommandInteraction, Client, MessageActionRow, MessageButton, TextChannel} from "discord.js";
 import {Command} from "../interfaces/Command";
-
 import {moderatorRoleId, verification} from "../../config.json";
 
 export const VerificationGreeting: Command = {
