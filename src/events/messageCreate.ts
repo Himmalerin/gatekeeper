@@ -1,10 +1,10 @@
 import {Client, GuildMember, Message, MessageActionRow, MessageButton, ThreadChannel} from "discord.js";
 
-import {verification} from "../../config.json";
+import {verification, serverRulesChannelId, reactionRolesChannelId} from "../../config.json";
 import {FandomApi} from "../interfaces/FandomApi";
 import fetchUserData from "../scripts/fetchUserData";
 import fetchDiscordName from "../scripts/fetchDiscordName";
-import {inlineCode} from "@discordjs/builders";
+import {channelMention, inlineCode} from "@discordjs/builders";
 
 export default (client: Client): void => {
     client.on("messageCreate", async (message: Message): Promise<void> => {
@@ -55,7 +55,9 @@ export default (client: Client): void => {
 
         await author.setNickname(userData.username);
 
-        await message.channel.send(`Verification of your Discord account with Fandom account ${inlineCode(message.content)} was successful!`);
+        await message.channel.send(`Verification of the Fandom account ${inlineCode(message.content)} was successful!
+
+Please be sure to read the server's ${channelMention(serverRulesChannelId)}!  You can also pick up some ${channelMention(reactionRolesChannelId)}.`);
 
         await channel.setLocked(true);
         await channel.setArchived(true);
