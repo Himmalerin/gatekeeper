@@ -21,8 +21,9 @@ export default async (username: string) => {
     const client = new undici.Client(`https://${wiki}.fandom.com`);
 
     try {
+        // The `&*` on the end of the url is required to avoid a MediaWiki security redirect for Internet Explorer
         const {body} = await client.request({
-            path: `/api.php?format=json&formatversion=2&action=query&list=users&usprop=blockinfo&ususers=${encodeURIComponent(username)}`,
+            path: `/api.php?format=json&formatversion=2&action=query&list=users&usprop=blockinfo&ususers=${encodeURIComponent(username)}&*`,
             method: "GET",
         });
         body.setEncoding("utf8");
