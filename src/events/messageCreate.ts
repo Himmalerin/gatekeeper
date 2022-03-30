@@ -40,7 +40,7 @@ export default (client: Client): void => {
                     new MessageButton()
                         .setLabel("Verify your account")
                         .setStyle("LINK")
-                        .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`),
+                        .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?useskin=fandomdesktop&c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`),
                 );
 
             await message.channel.send({
