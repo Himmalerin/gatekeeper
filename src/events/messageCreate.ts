@@ -65,10 +65,20 @@ export default (client: Client): void => {
             return;
         }
 
-        const verifiedRole = await message.guild.roles.fetch(verification.roleId);
-        await author.roles.add(verifiedRole);
+        try {
+            await author.setNickname(userData.username);
+        } catch (e) {
+            // do nothing except log it if setting the nick fails since doing that is just a nice-to-have
+            console.error(e);
+        }
 
-        await author.setNickname(userData.username);
+        try {
+            const verifiedRole = await message.guild.roles.fetch(verification.roleId);
+            await author.roles.add(verifiedRole);
+        } catch (e) {
+            await channel.send(`Giving you the verified role failed for some reason.  Please ping a server moderator!`);
+            return;
+        }
 
         await channel.send(`Verification of the Fandom account ${inlineCode(message.content)} was successful!
 
