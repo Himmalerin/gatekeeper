@@ -10,7 +10,7 @@ interface ServiceApi {
 
 export default async (userId: number, author: GuildMember, fandomUsername: string) => {
     try {
-        const response = await fetch(`/user-attribute/user/${userId}/attr/discordHandle`);
+        const response = await fetch(`https://services.fandom.com/user-attribute/user/${userId}/attr/discordHandle`);
         const data = await response.json() as ServiceApi;
 
         if (data.status === 404) {
