@@ -11,5 +11,8 @@
   "verification": {
     "channelId": "xxxxxxxxxxxxxxxxxx",
     "roleId": "xxxxxxxxxxxxxxxxxx"
-  }
+  },
+
+  "serverRulesChannelId": "xxxxxxxxxxxxxxxxxx",
+  "reactionRolesChannelId": "xxxxxxxxxxxxxxxxxx"
 }
