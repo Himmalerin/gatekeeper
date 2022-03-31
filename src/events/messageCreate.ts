@@ -23,13 +23,13 @@ export default (client: Client): void => {
 
         const userData: FandomApi = await fetchUserData(message.content);
         if (userData.message) {
-            await message.channel.send(userData.message);
+            await channel.send(userData.message);
             return;
         }
 
         const discordData = await fetchDiscordName(userData.id, author, message.content);
         if (discordData.message) {
-            await message.channel.send(discordData.message);
+            await channel.send(discordData.message);
             return;
         }
 
@@ -42,7 +42,7 @@ export default (client: Client): void => {
                         .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?useskin=fandomdesktop&c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`),
                 );
 
-            await message.channel.send({
+            await channel.send({
                 content: `The tag (${inlineCode(discordData.username)}) in the profile of the Fandom account ${inlineCode(message.content)} does not match your account's tag (${inlineCode(author.user.tag)}). Please correct it using the button below, and try again.`,
                 components: [button],
             });
@@ -54,7 +54,7 @@ export default (client: Client): void => {
 
         await author.setNickname(userData.username);
 
-        await message.channel.send(`Verification of the Fandom account ${inlineCode(message.content)} was successful!
+        await channel.send(`Verification of the Fandom account ${inlineCode(message.content)} was successful!
 
 Please be sure to read the server's ${channelMention(serverRulesChannelId)}!  You can also pick up some ${channelMention(reactionRolesChannelId)}.`);
 
