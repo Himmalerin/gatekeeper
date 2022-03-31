@@ -33,22 +33,6 @@ export default (client: Client): void => {
             return;
         }
 
-        if (discordData.username === "") {
-            const button = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setLabel("Verify your account")
-                        .setStyle("LINK")
-                        .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?useskin=fandomdesktop&c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`),
-                );
-
-            await channel.send({
-                content: `The Fandom account ${inlineCode(message.content)} doesn't have a discord account associated with it. Please add your discord account using the button below, and try again.`,
-                components: [button],
-            });
-            return;
-        }
-
         if (discordData.username !== author.user.tag) {
             const button = new MessageActionRow()
                 .addComponents(
