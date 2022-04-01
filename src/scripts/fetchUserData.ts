@@ -18,10 +18,8 @@ interface WikiApi {
 }
 
 export default async (username: string) => {
-
     try {
-        // The `&*` on the end of the url is required to avoid a MediaWiki security redirect for Internet Explorer
-        const response = await fetch(`https://${wiki}.fandom.com/api.php?format=json&formatversion=2&action=query&list=users&usprop=blockinfo&ususers=${encodeURIComponent(username)}&*`);
+        const response = await fetch(`https://${wiki}.fandom.com/api.php?format=json&formatversion=2&action=query&list=users&usprop=blockinfo&ususers=${encodeURIComponent(username)}`);
         const data = await response.json() as WikiApi;
 
         const user = data.query.users[0];
