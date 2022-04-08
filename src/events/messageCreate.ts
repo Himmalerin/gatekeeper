@@ -42,7 +42,7 @@ export default (client: Client): void => {
                 return;
         }
 
-        const discordData = await fetchDiscordName(userData.id, author, message.content);
+        const discordData = await fetchDiscordName(userData.id);
 
         switch (discordData.code) {
             case StatusCodes.MISSING:
