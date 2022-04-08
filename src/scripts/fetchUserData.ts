@@ -1,5 +1,5 @@
-import {inlineCode, time} from "@discordjs/builders";
 import {fetch} from "undici";
+import {StatusCodes} from "../typings/enums";
 import {wiki} from "../../config.json";
 
 interface WikiApi {
@@ -24,45 +24,31 @@ export default async (username: string) => {
 
         const user = data.query.users[0];
 
-        if (user.hasOwnProperty("missing") || user.hasOwnProperty("invalid")) {
-            return {
-                id: null,
-                username: null,
-                message: `The Fandom account ${inlineCode(user.name)} doesn't exist.  Please try again using a different username.`,
-            };
+        if (user.hasOwnProperty("invalid")) {
+            return {code: StatusCodes.INVALID};
         }
 
-        if (user.hasOwnProperty("blocked")) {
-            const blockExpiry = user.blockexpiry;
+        if (user.hasOwnProperty("missing")) {
+            return {code: StatusCodes.MISSING};
+        }
 
-            if (blockExpiry === "infinity") {
-                return {
-                    id: user.userid,
-                    username: user.name,
-                    message: `The Fandom account ${inlineCode(user.name)} is permanently blocked.`,
-                };
-            }
+        if (user.hasOwnProperty("blockexpiry") && user.blockexpiry === "infinity") {
+            return {code: StatusCodes.PERMANENT_BLOCK};
+        }
 
-            const blockExpiryDate = new Date(`${blockExpiry.slice(0, 4)}-${blockExpiry.slice(4, 6)}-${blockExpiry.slice(6, 8)}`);
-
-            return {
-                id: user.userid,
-                username: user.name,
-                message: `The Fandom account ${inlineCode(user.name)} is currently blocked.  Please try again in ${time(blockExpiryDate, "R")}.`,
-            };
+        if (user.hasOwnProperty("blockexpiry") && user.blockexpiry !== "infinity") {
+            return {code: StatusCodes.TEMPORARY_BLOCK};
         }
 
         return {
             id: user.userid,
             username: user.name,
-            message: null,
+            code: StatusCodes.SUCCESS,
         };
     } catch (error) {
         console.error(error);
         return {
-            id: null,
-            username: null,
-            message: "We're having issues connecting to Fandom.  Please try verifying again later!",
+            code: StatusCodes.SERVER_ERROR,
         };
     }
 };

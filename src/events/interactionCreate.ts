@@ -5,13 +5,12 @@ import {
     FetchedThreads,
     GuildMember,
     Interaction,
-    MessageActionRow,
-    MessageButton,
     TextChannel,
 } from "discord.js";
 import {channelMention, userMention} from "@discordjs/builders";
 import {Commands} from "../Commands";
 import {verification} from "../../config.json";
+import {MessageButtonStyles, MessageComponentTypes} from "discord.js/typings/enums";
 
 export default (client: Client): void => {
     client.on("interactionCreate", async (interaction: Interaction): Promise<void> => {
@@ -38,7 +37,7 @@ const handleSlashCommand = async (client: Client, interaction: BaseCommandIntera
 };
 
 const handleButton = async (client: Client, interaction: ButtonInteraction): Promise<void> => {
-    const member: GuildMember = await interaction.guild.members.fetch(interaction.user.id);
+    const member = interaction.member as GuildMember;
 
     if (member.roles.cache.has(verification.roleId)) {
         await interaction.reply({
@@ -53,52 +52,41 @@ const handleButton = async (client: Client, interaction: ButtonInteraction): Pro
 
     const verificationThreads: FetchedThreads = await verificationChannel.threads.fetchActive();
 
-    const previousVerificationThread = verificationThreads.threads.find((thread) => thread.name === `verify-${member.user.id}`);
-
-    if (previousVerificationThread === undefined) {
-        const thread = await verificationChannel.threads.create({
-            name: `verify-${member.user.id}`,
-            autoArchiveDuration: 60,
-        });
-
-        // Automatically delete the "thread started" message
-        const threadMessage = await verificationChannel.messages.fetch(thread.id);
-        await threadMessage.delete();
-
-        const button = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setLabel("Verify your account")
-                    .setStyle("LINK")
-                    .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`),
-            );
-
-        await thread.send({
-            content: `Welcome to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the link below to get started and then send your Fandom username in this thread.`,
-            components: [button],
-        });
-
+    // Don't create duplicate verification threads
+    const oldVerificationThread = verificationThreads.threads.find((thread) => thread.name === `verify-${member.user.id}`);
+    if (oldVerificationThread) {
         await interaction.reply({
             ephemeral: true,
-            content: `Please head over to ${channelMention(thread.id)} to verify!`,
-        });
-    } else {
-        const button = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setLabel("Verify your account")
-                    .setStyle("LINK")
-                    .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`),
-            );
-
-        await previousVerificationThread.send({
-            content: `Welcome back to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the link below to get started and then send your Fandom username in this thread.`,
-            components: [button],
+            content: `You already have an active verification thread at ${channelMention(oldVerificationThread.id)}.`,
         });
 
-        await interaction.reply({
-            ephemeral: true,
-            content: `Please head over to ${channelMention(previousVerificationThread.id)} to finish verifying!`,
-        });
+        return;
     }
+
+    const thread = await verificationChannel.threads.create({
+        name: `verify-${member.user.id}`,
+        autoArchiveDuration: 60,
+    });
+
+    // Automatically delete the "thread started" message
+    const threadMessage = await verificationChannel.messages.fetch(thread.id);
+    await threadMessage.delete();
+
+    await thread.send({
+        content: `Welcome to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the button below to get started and then send your Fandom username in this thread.`,
+        components: [{
+            components: [{
+                type: MessageComponentTypes.BUTTON,
+                style: MessageButtonStyles.LINK,
+                label: "Link accounts",
+                url: `https://community.fandom.com/wiki/Special:VerifyUser?useskin=fandomdesktop&c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`,
+            }],
+            type: MessageComponentTypes.ACTION_ROW,
+        }],
+    });
+
+    await interaction.reply({
+        ephemeral: true,
+        content: `Please head over to ${channelMention(thread.id)} to verify!`,
+    });
 };

@@ -1,5 +1,6 @@
-import {BaseCommandInteraction, Client, MessageActionRow, MessageButton, TextChannel} from "discord.js";
-import {Command} from "../interfaces/Command";
+import {BaseCommandInteraction, Client, TextChannel} from "discord.js";
+import {MessageButtonStyles, MessageComponentTypes} from "discord.js/typings/enums";
+import {Command} from "../typings/interfaces";
 import {moderatorRoleId, verification} from "../../config.json";
 
 export const VerificationGreeting: Command = {
@@ -18,19 +19,19 @@ export const VerificationGreeting: Command = {
 
         const verificationChannel = await client.channels.fetch(verification.channelId) as TextChannel;
 
-        const button = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId("verification")
-                    .setLabel("Restart verification process")
-                    .setStyle("PRIMARY"),
-            );
-
         await verificationChannel.send({
             content: `Welcome to the Wings of Fire Fanon Discord!  In order to verify and gain access to the rest of the server please follow the instructions in your dedicated verification thread.
 
 If your verification thread closes you can press the button below to create a new one.`,
-            components: [button],
+            components: [{
+                components: [{
+                    type: MessageComponentTypes.BUTTON,
+                    style: MessageButtonStyles.PRIMARY,
+                    customId: "verification",
+                    label: "Restart verification process",
+                }],
+                type: 1,
+            }],
         });
 
         await interaction.followUp({

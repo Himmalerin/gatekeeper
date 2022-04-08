@@ -1,6 +1,5 @@
-import {GuildMember, MessageActionRow, MessageButton} from "discord.js";
-import {inlineCode} from "@discordjs/builders";
 import {fetch} from "undici";
+import {StatusCodes} from "../typings/enums";
 
 interface ServiceApi {
     readonly name: string;
@@ -8,41 +7,22 @@ interface ServiceApi {
     readonly status?: number;
 }
 
-export default async (userId: number, author: GuildMember, fandomUsername: string) => {
+export default async (userId: number) => {
     try {
         const response = await fetch(`https://services.fandom.com/user-attribute/user/${userId}/attr/discordHandle`);
         const data = await response.json() as ServiceApi;
 
         if (data.status === 404 || data.value === "") {
-            const button = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setLabel("Verify your account")
-                        .setStyle("LINK")
-                        .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?useskin=fandomdesktop&c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`),
-                );
-
-            return {
-                id: userId,
-                username: null,
-                message: {
-                    content: `The Fandom account ${inlineCode(fandomUsername)} doesn't have a discord account associated with it. Please add your discord account using the button below, and try again.`,
-                    components: [button],
-                },
-            };
+            return {code: StatusCodes.MISSING};
         }
 
         return {
             id: userId,
             username: data.value,
-            message: null,
+            code: StatusCodes.SUCCESS,
         };
     } catch (error) {
         console.error(error);
-        return {
-            id: null,
-            username: null,
-            message: "We're having issues connecting to Fandom.  Please try verifying again later!",
-        };
+        return {code: StatusCodes.SERVER_ERROR};
     }
 };

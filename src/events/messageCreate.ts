@@ -1,9 +1,11 @@
-import {Client, GuildMember, Message, MessageActionRow, MessageButton, ThreadChannel} from "discord.js";
+import {Client, GuildMember, Message, TextChannel, ThreadChannel} from "discord.js";
+import {MessageButtonStyles, MessageComponentTypes} from "discord.js/typings/enums";
 import {channelMention, inlineCode} from "@discordjs/builders";
 import fetchUserData from "../scripts/fetchUserData";
 import fetchDiscordName from "../scripts/fetchDiscordName";
-import {FandomApi} from "../interfaces/FandomApi";
-import {reactionRolesChannelId, serverRulesChannelId, verification} from "../../config.json";
+import {StatusCodes} from "../typings/enums";
+import {FandomApi} from "../typings/interfaces";
+import {reactionRolesChannelId, serverRulesChannelId, verification, wiki} from "../../config.json";
 
 export default (client: Client): void => {
     client.on("messageCreate", async (message: Message): Promise<void> => {
@@ -18,34 +20,65 @@ export default (client: Client): void => {
         if (message.channel.name !== `verify-${message.author.id}`) return;
 
         const channel = message.channel as ThreadChannel;
-
         const author: GuildMember = await message.guild.members.fetch(message.author.id);
 
         const userData: FandomApi = await fetchUserData(message.content);
-        if (userData.message) {
-            await channel.send(userData.message);
-            return;
+
+        switch (userData.code) {
+            case StatusCodes.INVALID:
+                await channel.send(`Invalid username.  Please try again with a different username.`);
+                return;
+            case StatusCodes.MISSING:
+                await channel.send(`The Fandom account ${inlineCode(message.content)} doesn't exist.  Please try again with a different username.`);
+                return;
+            case StatusCodes.TEMPORARY_BLOCK:
+                await channel.send(`The Fandom account ${inlineCode(message.content)} is currently blocked.  Please try again later.`);
+                return;
+            case StatusCodes.PERMANENT_BLOCK:
+                await channel.send(`The Fandom account ${inlineCode(message.content)} is permanently blocked.`);
+                return;
+            case StatusCodes.SERVER_ERROR:
+                await channel.send(`We're having issues connecting to Fandom.  Please try verifying again later!`);
+                return;
         }
 
         const discordData = await fetchDiscordName(userData.id, author, message.content);
-        if (discordData.message) {
-            await channel.send(discordData.message);
-            return;
+
+        switch (discordData.code) {
+            case StatusCodes.MISSING:
+                await channel.send({
+                    content: `The Fandom account ${inlineCode(message.content)} doesn't have a discord account linked to it.  Please link your discord account using the button below, and try again.`,
+                    components: [{
+                        components: [{
+                            type: MessageComponentTypes.BUTTON,
+                            style: MessageButtonStyles.LINK,
+                            label: "Link accounts",
+                            url: `https://community.fandom.com/wiki/Special:VerifyUser?useskin=fandomdesktop&c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`,
+                        }],
+                        type: MessageComponentTypes.ACTION_ROW,
+                    }],
+                });
+
+                return;
+            case StatusCodes.SERVER_ERROR:
+                await channel.send(`We're having issues connecting to Fandom.  Please try verifying again later!`);
+                return;
         }
 
         if (discordData.username !== author.user.tag) {
-            const button = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setLabel("Verify your account")
-                        .setStyle("LINK")
-                        .setURL(`https://community.fandom.com/wiki/Special:VerifyUser?useskin=fandomdesktop&c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`),
-                );
-
             await channel.send({
-                content: `The tag (${inlineCode(discordData.username)}) in the profile of the Fandom account ${inlineCode(message.content)} does not match your account's tag (${inlineCode(author.user.tag)}). Please correct it using the button below, and try again.`,
-                components: [button],
+                content: `The tag (${inlineCode(discordData.username)}) in the profile of the Fandom account ${inlineCode(message.content)} does not match your account's tag (${inlineCode(author.user.tag)}).  Please correct it using the button below, and try again.`,
+                components: [{
+                    components: [{
+                        type: MessageComponentTypes.BUTTON,
+                        style: MessageButtonStyles.LINK,
+                        label: "Link accounts",
+                        url: `https://community.fandom.com/wiki/Special:VerifyUser?useskin=fandomdesktop&c=+&user=${encodeURIComponent(author.user.username)}&tag=${author.user.discriminator}`,
+                    }],
+                    type: 1,
+                }],
             });
+
             return;
         }
 
@@ -60,13 +93,25 @@ export default (client: Client): void => {
             const verifiedRole = await message.guild.roles.fetch(verification.roleId);
             await author.roles.add(verifiedRole);
         } catch (e) {
-            await channel.send(`Giving you the verified role failed for some reason.  Please ping a server moderator!`);
+            await channel.send(`We couldn't give you the verified role for some reason.  Please ping a moderator for assistance.`);
             return;
         }
 
-        await channel.send(`Verification of the Fandom account ${inlineCode(message.content)} was successful!
+        const verificationChannel = await channel.guild.channels.fetch(verification.channelId) as TextChannel;
 
-Please be sure to read the server's ${channelMention(serverRulesChannelId)}!  You can also pick up some ${channelMention(reactionRolesChannelId)}.`);
+        const webhooks = await verificationChannel.fetchWebhooks();
+        let webhook = webhooks.find((webhook) => webhook.owner.id === client.user.id);
+
+        if (!webhook) {
+            webhook = await verificationChannel.createWebhook(client.user.username, {avatar: client.user.avatarURL({format: "png"})});
+        }
+
+        await webhook.send({
+            content: `Verification of the Fandom account [${message.content}](<https://${wiki}.fandom.com/wiki/User:${encodeURIComponent(message.content)}>) was successful!
+
+Please be sure to read the server's ${channelMention(serverRulesChannelId)}!  You can also pick up some ${channelMention(reactionRolesChannelId)}.`,
+            threadId: message.channel.id,
+        });
 
         await channel.setLocked(true);
         await channel.setArchived(true);

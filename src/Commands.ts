@@ -1,4 +1,4 @@
-import {Command} from "./interfaces/Command";
+import {Command} from "./typings/interfaces";
 import {VerificationGreeting} from "./commands/VerificationGreeting";
 import {BotInfo} from "./commands/BotInfo";
 
