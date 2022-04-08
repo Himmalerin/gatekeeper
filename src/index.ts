@@ -1,6 +1,5 @@
 import {Client, Intents} from "discord.js";
 import * as config from "../config.json";
-
 import ready from "./events/ready";
 import guildMemberAdd from "./events/guildMemberAdd";
 import messageCreate from "./events/messageCreate";
