@@ -4,15 +4,17 @@
   "clientId": "xxxxxxxxxxxxxxxxxx",
   "guildId": "xxxxxxxxxxxxxxxxxx",
 
-  "moderatorRoleId": "xxxxxxxxxxxxxxxxxx",
+  "wiki": "xxxxxxxxxxxxxxxxxx",
 
-  "wiki": "xx.fandom.com",
-
-  "verification": {
-    "channelId": "xxxxxxxxxxxxxxxxxx",
-    "roleId": "xxxxxxxxxxxxxxxxxx"
+  "channelIds": {
+    "verification": "xxxxxxxxxxxxxxxxxx",
+    "logging": "xxxxxxxxxxxxxxxxxx",
+    "rules": "xxxxxxxxxxxxxxxxxx",
+    "roles": "xxxxxxxxxxxxxxxxxx"
   },
 
-  "serverRulesChannelId": "xxxxxxxxxxxxxxxxxx",
-  "reactionRolesChannelId": "xxxxxxxxxxxxxxxxxx"
+  "roleIds": {
+    "moderator": "xxxxxxxxxxxxxxxxxx",
+    "verified": "xxxxxxxxxxxxxxxxxx"
+  }
 }

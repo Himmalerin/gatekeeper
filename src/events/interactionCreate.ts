@@ -9,7 +9,7 @@ import {
 } from "discord.js";
 import {channelMention, userMention} from "@discordjs/builders";
 import {Commands} from "../Commands";
-import {verification} from "../../config.json";
+import {roleIds} from "../../config.json";
 import {MessageButtonStyles, MessageComponentTypes} from "discord.js/typings/enums";
 
 export default (client: Client): void => {
@@ -39,7 +39,7 @@ const handleSlashCommand = async (client: Client, interaction: BaseCommandIntera
 const handleButton = async (client: Client, interaction: ButtonInteraction): Promise<void> => {
     const member = interaction.member as GuildMember;
 
-    if (member.roles.cache.has(verification.roleId)) {
+    if (member.roles.cache.has(roleIds.verified)) {
         await interaction.reply({
             ephemeral: true,
             content: `You are already verified.`,

@@ -1,12 +1,12 @@
 import {Client, FetchedThreads, GuildMember, TextChannel} from "discord.js";
 import {MessageButtonStyles, MessageComponentTypes} from "discord.js/typings/enums";
 import {userMention} from "@discordjs/builders";
-import {verification} from "../../config.json";
+import {channelIds} from "../../config.json";
 
 export default (client: Client): void => {
     client.on("guildMemberAdd", async (member: GuildMember): Promise<void> => {
         try {
-            const verificationChannel = await client.channels.fetch(verification.channelId) as TextChannel;
+            const verificationChannel = await client.channels.fetch(channelIds.verification) as TextChannel;
 
             const verificationThreads: FetchedThreads = await verificationChannel.threads.fetchActive();
 

@@ -1,7 +1,7 @@
 import {BaseCommandInteraction, Client, TextChannel} from "discord.js";
 import {MessageButtonStyles, MessageComponentTypes} from "discord.js/typings/enums";
 import {Command} from "../typings/interfaces";
-import {moderatorRoleId, verification} from "../../config.json";
+import {channelIds, roleIds} from "../../config.json";
 
 export const VerificationGreeting: Command = {
     name: "verification-greeting",
@@ -9,7 +9,7 @@ export const VerificationGreeting: Command = {
     type: "CHAT_INPUT",
     run: async (client: Client, interaction: BaseCommandInteraction) => {
         const member = await interaction.guild.members.fetch(interaction.user.id);
-        if (member.roles.cache.has(moderatorRoleId) === false) {
+        if (member.roles.cache.has(roleIds.moderator) === false) {
             await interaction.followUp({
                 content: "You do not have permission to use this command.",
             });
@@ -17,7 +17,7 @@ export const VerificationGreeting: Command = {
             return;
         }
 
-        const verificationChannel = await client.channels.fetch(verification.channelId) as TextChannel;
+        const verificationChannel = await client.channels.fetch(channelIds.verification) as TextChannel;
 
         await verificationChannel.send({
             content: `Welcome to the Wings of Fire Fanon Discord!  In order to verify and gain access to the rest of the server please follow the instructions in your dedicated verification thread.

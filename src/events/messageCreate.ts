@@ -5,7 +5,7 @@ import fetchUserData from "../scripts/fetchUserData";
 import fetchDiscordName from "../scripts/fetchDiscordName";
 import {StatusCodes} from "../typings/enums";
 import {FandomApi} from "../typings/interfaces";
-import {reactionRolesChannelId, serverRulesChannelId, verification, wiki} from "../../config.json";
+import {channelIds, roleIds, wiki} from "../../config.json";
 
 export default (client: Client): void => {
     client.on("messageCreate", async (message: Message): Promise<void> => {
@@ -16,7 +16,7 @@ export default (client: Client): void => {
         //  - The message is in a thread inside the verification channel, and
         //  - The thread name is "verify-" followed by the user's id
         if (message.channel.type !== "GUILD_PUBLIC_THREAD") return;
-        if (message.channel.parentId !== verification.channelId) return;
+        if (message.channel.parentId !== channelIds.verification) return;
         if (message.channel.name !== `verify-${message.author.id}`) return;
 
         const channel = message.channel as ThreadChannel;
@@ -90,14 +90,14 @@ export default (client: Client): void => {
         }
 
         try {
-            const verifiedRole = await message.guild.roles.fetch(verification.roleId);
+            const verifiedRole = await message.guild.roles.fetch(roleIds.verified);
             await author.roles.add(verifiedRole);
         } catch (e) {
             await channel.send(`We couldn't give you the verified role for some reason.  Please ping a moderator for assistance.`);
             return;
         }
 
-        const verificationChannel = await channel.guild.channels.fetch(verification.channelId) as TextChannel;
+        const verificationChannel = await channel.guild.channels.fetch(channelIds.verification) as TextChannel;
 
         const webhooks = await verificationChannel.fetchWebhooks();
         let webhook = webhooks.find((webhook) => webhook.owner.id === client.user.id);
@@ -109,7 +109,7 @@ export default (client: Client): void => {
         await webhook.send({
             content: `Verification of the Fandom account [${message.content}](<https://${wiki}.fandom.com/wiki/User:${encodeURIComponent(message.content)}>) was successful!
 
-Please be sure to read the server's ${channelMention(serverRulesChannelId)}!  You can also pick up some ${channelMention(reactionRolesChannelId)}.`,
+Please be sure to read the server's ${channelMention(channelIds.rules)}!  You can also pick up some ${channelMention(channelIds.roles)}.`,
             threadId: message.channel.id,
         });
 
