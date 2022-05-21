@@ -99,12 +99,15 @@ export default async (client: Client, interaction: ModalSubmitInteraction | Comm
         const verifiedRole = await interaction.guild.roles.fetch(roleIds.verified);
         await discordAccount.roles.add(verifiedRole);
 
-        await interaction.reply({
-            content: `Verification complete!  Please be sure to read the server's ${channelMention(channelIds.rules)}!  You can also pick up some ${channelMention(channelIds.roles)}.`,
-            ephemeral: true,
-        });
+        // Don't send the message if a server mod is doing the verification
+        if (moderator.user.id !== client.user.id) {
+            await interaction.reply({
+                content: `Verification complete!  Please be sure to read the server's ${channelMention(channelIds.rules)}!  You can also pick up some ${channelMention(channelIds.roles)}.`,
+                ephemeral: true,
+            });
+        }
     } catch (e) {
-        await interaction.reply({
+        await interaction.followUp({
             content: `We couldn't verify you for some reason.  Please ping a moderator for assistance.`,
             ephemeral: true,
         });

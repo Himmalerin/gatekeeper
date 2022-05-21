@@ -55,7 +55,7 @@ export const Verify: Command = {
 
             await interaction.followUp(`Successfully verified ${discordAccount.user.tag}.`);
         } catch (e) {
-            await interaction.reply({
+            await interaction.followUp({
                 content: "We couldn't verify that user for some reason.",
                 ephemeral: true,
             });
