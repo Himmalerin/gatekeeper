@@ -89,9 +89,9 @@ export default async (client: Client, interaction: ModalSubmitInteraction | Comm
         return;
     }
 
-    try {
-        const moderator = await interaction.guild.members.fetch(client.user.id);
+    const moderator = await interaction.guild.members.fetch(client.user.id);
 
+    try {
         await logVerification(client, interaction, moderator, discordAccount, fandomAccount);
 
         await discordAccount.setNickname(fandomAccount.username);
@@ -100,17 +100,24 @@ export default async (client: Client, interaction: ModalSubmitInteraction | Comm
         await discordAccount.roles.add(verifiedRole);
 
         // Don't send the message if a server mod is doing the verification
-        if (moderator.user.id !== client.user.id) {
+        if (moderator.user.id === client.user.id) {
             await interaction.reply({
                 content: `Verification complete!  Please be sure to read the server's ${channelMention(channelIds.rules)}!  You can also pick up some ${channelMention(channelIds.roles)}.`,
                 ephemeral: true,
             });
         }
     } catch (e) {
-        await interaction.followUp({
-            content: `We couldn't verify you for some reason.  Please ping a moderator for assistance.`,
-            ephemeral: true,
-        });
+        if (moderator.user.id !== client.user.id) {
+            await interaction.followUp({
+                content: `We couldn't verify you for some reason.  Please ping a moderator for assistance.`,
+                ephemeral: true,
+            });
+        } else {
+            await interaction.reply({
+                content: `We couldn't verify you for some reason.  Please ping a moderator for assistance.`,
+                ephemeral: true,
+            });
+        }
 
         console.error(e);
     }
