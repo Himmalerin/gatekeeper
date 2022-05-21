@@ -9,17 +9,18 @@ interface WikiApi {
                 readonly missing?: boolean;
                 readonly invalid?: boolean;
                 readonly name: string;
+                readonly registration?: null | string;
                 readonly userid?: number;
                 readonly blockid?: number;
                 readonly blockexpiry?: string;
             }
-        ]
+        ],
     };
 }
 
 export default async (username: string) => {
     try {
-        const response = await fetch(`https://${wiki}.fandom.com/api.php?format=json&formatversion=2&action=query&list=users&usprop=blockinfo&ususers=${encodeURIComponent(username)}`);
+        const response = await fetch(`https://${wiki}.fandom.com/api.php?format=json&formatversion=2&action=query&list=users&usprop=registration|blockinfo&ususers=${encodeURIComponent(username)}`);
         const data = await response.json() as WikiApi;
 
         const user = data.query.users[0];
@@ -43,10 +44,11 @@ export default async (username: string) => {
         return {
             id: user.userid,
             username: user.name,
+            registration: user.registration,
             code: StatusCodes.SUCCESS,
         };
-    } catch (error) {
-        console.error(error);
+    } catch (e) {
+        console.error(e);
         return {
             code: StatusCodes.SERVER_ERROR,
         };

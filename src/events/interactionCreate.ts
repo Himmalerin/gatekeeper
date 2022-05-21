@@ -2,24 +2,42 @@ import {
     BaseCommandInteraction,
     ButtonInteraction,
     Client,
-    FetchedThreads,
     GuildMember,
     Interaction,
-    TextChannel,
+    MessageActionRow,
+    Modal,
+    ModalActionRowComponent,
+    ModalSubmitInteraction,
+    TextInputComponent,
 } from "discord.js";
-import {channelMention, userMention} from "@discordjs/builders";
 import {Commands} from "../Commands";
 import {roleIds} from "../../config.json";
-import {MessageButtonStyles, MessageComponentTypes} from "discord.js/typings/enums";
+import {TextInputStyles} from "discord.js/typings/enums";
+import {ModalFields} from "../typings/enums";
+import verifyAccount from "../scripts/verifyAccount";
+import createHelpThread from "../scripts/createHelpThread";
 
 export default (client: Client): void => {
     client.on("interactionCreate", async (interaction: Interaction): Promise<void> => {
         if (interaction.isCommand()) {
             await handleSlashCommand(client, interaction);
+            return;
         }
 
         if (interaction.isButton()) {
-            await handleButton(client, interaction);
+            switch (interaction.customId) {
+                case "verification":
+                    await handleVerificationButton(client, interaction);
+                    return;
+                case "help":
+                    await handleHelpThreadButton(client, interaction);
+                    return;
+            }
+        }
+
+        if (interaction.isModalSubmit()) {
+            await handleModalSubmit(client, interaction);
+            return;
         }
     });
 };
@@ -27,7 +45,7 @@ export default (client: Client): void => {
 const handleSlashCommand = async (client: Client, interaction: BaseCommandInteraction): Promise<void> => {
     const slashCommand = Commands.find(c => c.name === interaction.commandName);
     if (!slashCommand) {
-        await interaction.followUp({content: "An error has occurred"});
+        await interaction.followUp("An error has occurred");
         return;
     }
 
@@ -36,7 +54,7 @@ const handleSlashCommand = async (client: Client, interaction: BaseCommandIntera
     slashCommand.run(client, interaction);
 };
 
-const handleButton = async (client: Client, interaction: ButtonInteraction): Promise<void> => {
+const handleVerificationButton = async (client: Client, interaction: ButtonInteraction): Promise<void> => {
     const member = interaction.member as GuildMember;
 
     if (member.roles.cache.has(roleIds.verified)) {
@@ -48,45 +66,29 @@ const handleButton = async (client: Client, interaction: ButtonInteraction): Pro
         return;
     }
 
-    const verificationChannel = await client.channels.fetch(verification.channelId) as TextChannel;
+    const modal = new Modal()
+        .setCustomId("verificationModal")
+        .setTitle("Verify your account");
 
-    const verificationThreads: FetchedThreads = await verificationChannel.threads.fetchActive();
+    const wikiUsernameInput = new TextInputComponent()
+        .setCustomId(ModalFields.WIKI_USERNAME)
+        .setLabel("What's your wiki username?")
+        .setStyle(TextInputStyles.SHORT);
 
-    // Don't create duplicate verification threads
-    const oldVerificationThread = verificationThreads.threads.find((thread) => thread.name === `verify-${member.user.id}`);
-    if (oldVerificationThread) {
-        await interaction.reply({
-            ephemeral: true,
-            content: `You already have an active verification thread at ${channelMention(oldVerificationThread.id)}.`,
-        });
+    const firstActionRow = new MessageActionRow<ModalActionRowComponent>().addComponents(wikiUsernameInput);
 
-        return;
-    }
+    modal.addComponents(firstActionRow);
 
-    const thread = await verificationChannel.threads.create({
-        name: `verify-${member.user.id}`,
-        autoArchiveDuration: 60,
-    });
+    await interaction.showModal(modal);
+};
 
-    // Automatically delete the "thread started" message
-    const threadMessage = await verificationChannel.messages.fetch(thread.id);
-    await threadMessage.delete();
+const handleHelpThreadButton = async (client: Client, interaction: ButtonInteraction) => {
+    await createHelpThread(client, interaction);
+};
 
-    await thread.send({
-        content: `Welcome to the WoF Fanon Wiki verification process, ${userMention(member.user.id)}! Click the button below to get started and then send your Fandom username in this thread.`,
-        components: [{
-            components: [{
-                type: MessageComponentTypes.BUTTON,
-                style: MessageButtonStyles.LINK,
-                label: "Link accounts",
-                url: `https://community.fandom.com/wiki/Special:VerifyUser?useskin=fandomdesktop&c=+&user=${encodeURIComponent(member.user.username)}&tag=${member.user.discriminator}`,
-            }],
-            type: MessageComponentTypes.ACTION_ROW,
-        }],
-    });
+const handleModalSubmit = async (client: Client, interaction: ModalSubmitInteraction) => {
+    const discordAccount = interaction.guild.members.cache.get(interaction.user.id);
+    const fandomUsername = interaction.fields.getTextInputValue(ModalFields.WIKI_USERNAME);
 
-    await interaction.reply({
-        ephemeral: true,
-        content: `Please head over to ${channelMention(thread.id)} to verify!`,
-    });
+    await verifyAccount(client, interaction, discordAccount, fandomUsername);
 };

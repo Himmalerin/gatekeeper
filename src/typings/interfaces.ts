@@ -9,5 +9,7 @@ export interface FandomApi {
     code: StatusCodes;
     id?: number;
     username?: string;
+    registration?: string;
+    joined?: string|null;
     blockLength?: number;
 }

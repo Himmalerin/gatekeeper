@@ -1,5 +1,11 @@
 import {Command} from "./typings/interfaces";
-import {VerificationGreeting} from "./commands/VerificationGreeting";
 import {BotInfo} from "./commands/BotInfo";
+import {VerificationInstructions} from "./commands/VerificationInstructions";
+import {Verify} from "./commands/Verify";
 
-export const Commands: Command[] = [VerificationGreeting, BotInfo];
+
+export const Commands: Command[] = [
+    BotInfo,
+    VerificationInstructions,
+    Verify,
+];
